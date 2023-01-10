@@ -2,37 +2,40 @@ import React,{useMemo,useCallback} from 'react';
 import styled from 'styled-components';
 import palette from '../styles/palette';
 import { TodoType } from '../types/todo';
+import TrashCanIcon from "../public/statics/svg/trash_can.svg"
+import CheckMarkIcon from "../public/statics/svg/check_mark.svg"
 
 const Container = styled.div`
     width:100%;
 
     .todo-list-header{
         padding:12px;
-        border-bottom:1px solid ${palette.gray}
+        border-bottom:1px solid ${palette.gray};
 
-    }
-    .todo-list-last-todo{
-        font-size:14px;
-        span{
-            margin-left:8px;
-        }
-    }
-    // 투두 색상개수 가지고 스타일링
-    .todo-list-header-colors{
-        display:flex;
-        .todo-list-header-color-num{
-            display:flex;
-            margin-right:8px;
-            p{
-                font-size:14px;
-                line-height:16px;
-                margin:0;
-                margin-left:6px;
+        .todo-list-last-todo{
+            font-size:14px;
+            span{
+                margin-left:8px;
             }
-            .todo-list-header-round-color{
-                width:16px;
-                height:16px;
-                border-radius:50%;
+        }
+
+            // 투두 색상개수 가지고 스타일링
+        .todo-list-header-colors{
+            display:flex;
+            .todo-list-header-color-num{
+                display:flex;
+                margin-right:8px;
+                p{
+                    font-size:14px;
+                    line-height:16px;
+                    margin:0;
+                    margin-left:6px;
+                }
+                .todo-list-header-round-color{
+                    width:16px;
+                    height:16px;
+                    border-radius:50%;
+                }
             }
         }
     }
@@ -55,6 +58,65 @@ const Container = styled.div`
         background-color: ${palette.yellow};
     }
     
+    // 투두아이템 스타일링
+    .todo-list{
+        .todo-item{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            width:100%;
+            height:52px;
+            border-bottom:1px solid ${palette.gray};
+            
+        .todo-left-side{
+            width:100%;
+            height:100%;
+            display:flex;
+            align-items:center;
+            .todo-color-block{
+                width:12px;
+                height:100%;
+            }
+            .checked-todo-text{
+                color:${palette.gray};
+                text-decoration: line-through;
+            }
+            .todo-text{
+                margin-left:12px;
+                font-size:16px;
+            }
+        }
+        .todo-right-side {
+        display: flex;
+        align-items: center;
+        margin-right: 12px;
+        svg {
+          &:first-child {
+            margin-right:14px;
+          }
+        }
+        .todo-trash-can {
+          width: 16px;
+          path {
+            fill: ${palette.deep_red};
+          }
+        }
+        .todo-check-mark {
+          fill: ${palette.deep_green};
+        }
+        .todo-button {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          border: 1px solid ${palette.gray};
+          background-color: transparent;
+          outline: none;
+        }
+      }
+        }
+
+        
+    }
     
 
 `
@@ -114,7 +176,7 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
     const colors: ObjectIndexType = {};
     todos.forEach((todo) => {
       const value = colors[todo.color];
-      console.log(value)
+    //   console.log(value)
       if (!value) {
         //* 존재하지않던 key라면
         colors[`${todo.color}`] = 1;
@@ -125,7 +187,7 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
     });
     return colors;
   }, [todos]);
-  console.log(todoColorNums)
+//   console.log(todoColorNums)
     return (
         <Container>
             <div className='todo-list-header'>
@@ -141,6 +203,34 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
                     ))}
                 </div>
             </div>
+            <ul className='todo-list'>
+                {todos.map((todo)=>(
+                    <li className='todo-item' key={todo.id}>
+                        <div className='todo-left-side'>
+                            <div className={`todo-color-block bg-${todo.color}`}/>
+                            <p className={`todo-text ${todo.checked ? "checked-todo-text":""}`}>
+                                {todo.text}
+                            </p>
+                        </div>
+                        <div className='todo-right-side'>
+                            {todo.checked && (
+                                <>
+                               <TrashCanIcon className="todo-trash-can" onClick={()=>{}}/>
+                                <CheckMarkIcon
+                                    className="todo-check-mark"
+                                    onClick={() => {}}
+                                />
+                                </>
+                            )}
+                            {/* 체크되어 있지 않은 경우 */}
+                            {!todo.checked&&(
+                                <button type="button" className='todo-button' onClick={()=>{}}/>
+                            )}
+                        </div>
+                    </li>
+                ))}
+            </ul>
+            
         </Container>
     );
 };

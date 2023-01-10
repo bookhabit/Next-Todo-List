@@ -2,6 +2,7 @@ import {NextPage} from "next"
 import styled from "styled-components";
 import TodoList from "../components/TodoList";
 import { TodoType } from "../types/todo";
+import React from "react";
 
 const todos:TodoType[]=[
     {id:1,text:"마트 가서 장보기",color:"blue",checked:false},
