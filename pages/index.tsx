@@ -1,24 +1,24 @@
 import {NextPage} from "next"
 import styled from "styled-components";
+import TodoList from "../components/TodoList";
+import { TodoType } from "../types/todo";
 
-const Container = styled.div`
-    font-style:italic;
-    color:red;
-    padding:20px;
-`
+const todos:TodoType[]=[
+    {id:1,text:"마트 가서 장보기",color:"blue",checked:false},
+    {id:2,text:"수학 숙제하기",color:"green",checked:false},
+    {id:3,text:"코딩하기",color:"navy",checked:true},
+    {id:4,text:"넥스트 공부하기",color:"orange",checked:true},
+    {id:5,text:"요리 연습하기",color:"red",checked:false},
+    {id:6,text:"분리수거 하기",color:"yellow",checked:false},
+    
+]
+
 
 const index:NextPage = ()=>{
     return (
-        <Container>
-            <h1>hello Typescript</h1>
-            <h2>hello Typescript</h2>
-            <p>hello Typescript</p>
-            <ul>
-                <li>hello Typescript</li>
-            </ul>
-            <a>hello Typescript</a>
-            <span>hello Typescript</span>
-        </Container>
+        
+            <TodoList todos={todos}/>
+        
     )
 }
 
