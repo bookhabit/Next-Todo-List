@@ -1,9 +1,10 @@
-import React,{useMemo,useCallback} from 'react';
+import React,{useMemo,useCallback, useState} from 'react';
 import styled from 'styled-components';
 import palette from '../styles/palette';
 import { TodoType } from '../types/todo';
 import TrashCanIcon from "../public/statics/svg/trash_can.svg"
 import CheckMarkIcon from "../public/statics/svg/check_mark.svg"
+import { checkTodoAPI } from '../lib/api/todo';
 
 const Container = styled.div`
     width:100%;
@@ -132,6 +133,9 @@ type ObjectIndexType = {
 }
 
 const TodoList:React.FC<Iprops> = ({todos}) => {
+    // todos를 state로 관리해서 checked 바꾸기
+    const [localTodos,setLocalTodos] = useState(todos)
+
     // 색깔 객체 구하기1
     const getTodoColorNums = useCallback(()=>{
         let red = 0;
@@ -174,7 +178,7 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
   //* 색깔 객체 구하기 2
   const todoColorNums = useMemo(() => {
     const colors: ObjectIndexType = {};
-    todos.forEach((todo) => {
+    localTodos.forEach((todo) => {
       const value = colors[todo.color];
     //   console.log(value)
       if (!value) {
@@ -187,12 +191,31 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
     });
     return colors;
   }, [todos]);
-//   console.log(todoColorNums)
+
+  // 투두체크하기
+  const checkTodo = async (id:number)=>{
+    try{
+        await checkTodoAPI(id);
+        // 체크 적용하는 방법 - data를 local로 저장하여 사용하기
+        const newTodos = localTodos.map((todo)=>{
+            if(todo.id===id){
+                return {...todo,checked:!todo.checked};
+            }
+            return todo;
+        });
+        setLocalTodos(newTodos)
+
+        console.log("체크하였습니다");
+    }catch(e){
+        console.log(e)
+    }
+  }
+
     return (
         <Container>
             <div className='todo-list-header'>
                 <p className='todo-list-last-todo'>
-                    남은 TODO<span>{todos.length}개</span>
+                    남은 TODO<span>{localTodos.length}개</span>
                 </p>
                 <div className='todo-list-header-colors'>
                     {Object.keys(todoColorNums).map((color,index)=>(
@@ -204,7 +227,7 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
                 </div>
             </div>
             <ul className='todo-list'>
-                {todos.map((todo)=>(
+                {localTodos.map((todo)=>(
                     <li className='todo-item' key={todo.id}>
                         <div className='todo-left-side'>
                             <div className={`todo-color-block bg-${todo.color}`}/>
@@ -213,18 +236,24 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
                             </p>
                         </div>
                         <div className='todo-right-side'>
+                            {/* 체크되어있는경우 */}
                             {todo.checked && (
                                 <>
                                <TrashCanIcon className="todo-trash-can" onClick={()=>{}}/>
                                 <CheckMarkIcon
                                     className="todo-check-mark"
-                                    onClick={() => {}}
+                                    onClick={() => {
+                                        checkTodo(todo.id)
+                                    }}
                                 />
                                 </>
                             )}
                             {/* 체크되어 있지 않은 경우 */}
                             {!todo.checked&&(
-                                <button type="button" className='todo-button' onClick={()=>{}}/>
+                                <button type="button" className='todo-button' 
+                                onClick={()=>{
+                                    checkTodo(todo.id)
+                                }}/>
                             )}
                         </div>
                     </li>
