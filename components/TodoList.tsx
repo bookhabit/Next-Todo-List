@@ -5,6 +5,9 @@ import { TodoType } from '../types/todo';
 import TrashCanIcon from "../public/statics/svg/trash_can.svg"
 import CheckMarkIcon from "../public/statics/svg/check_mark.svg"
 import { checkTodoAPI,deleteTodoAPI } from '../lib/api/todo';
+import { useSelector } from '../store';
+import { useDispatch } from 'react-redux';
+import { todoActions } from './../store/todo';
 
 const Container = styled.div`
     width:100%;
@@ -132,9 +135,12 @@ type ObjectIndexType = {
     [key:string]:number|undefined;
 }
 
-const TodoList:React.FC<Iprops> = ({todos}) => {
+const TodoList:React.FC<Iprops> = () => {
+    const todos = useSelector((state)=>state.todo.todos)
+    const dispatch = useDispatch();
     // todos를 state로 관리해서 checked 바꾸기
-    const [localTodos,setLocalTodos] = useState(todos)
+    // const [localTodos,setLocalTodos] = useState(todos)
+
 
     // 색깔 객체 구하기1
     const getTodoColorNums = useCallback(()=>{
@@ -178,7 +184,7 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
   //* 색깔 객체 구하기 2
   const todoColorNums = useMemo(() => {
     const colors: ObjectIndexType = {};
-    localTodos.forEach((todo) => {
+    todos.forEach((todo) => {
       const value = colors[todo.color];
     //   console.log(value)
       if (!value) {
@@ -197,13 +203,13 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
     try{
         await checkTodoAPI(id);
         // 체크 적용하는 방법 - data를 local로 저장하여 사용하기
-        const newTodos = localTodos.map((todo)=>{
+        const newTodos = todos.map((todo)=>{
             if(todo.id===id){
                 return {...todo,checked:!todo.checked};
             }
             return todo;
         });
-        setLocalTodos(newTodos)
+        dispatch(todoActions.setTodo(newTodos))
 
         console.log("체크하였습니다");
     }catch(e){
@@ -215,8 +221,8 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
   const deleteTodo = async (id:number)=>{
     try{
         await deleteTodoAPI(id);
-        const newTodos = localTodos.filter((todo)=>todo.id !== id)
-        setLocalTodos(newTodos);
+        const newTodos = todos.filter((todo)=>todo.id !== id)
+        dispatch(todoActions.setTodo(newTodos))
         console.log('삭제 완료')
     }catch(e){
         console.log(e)
@@ -227,7 +233,7 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
         <Container>
             <div className='todo-list-header'>
                 <p className='todo-list-last-todo'>
-                    남은 TODO<span>{localTodos.length}개</span>
+                    남은 TODO<span>{todos.length}개</span>
                 </p>
                 <div className='todo-list-header-colors'>
                     {Object.keys(todoColorNums).map((color,index)=>(
@@ -239,7 +245,7 @@ const TodoList:React.FC<Iprops> = ({todos}) => {
                 </div>
             </div>
             <ul className='todo-list'>
-                {localTodos.map((todo)=>(
+                {todos.map((todo)=>(
                     <li className='todo-item' key={todo.id}>
                         <div className='todo-left-side'>
                             <div className={`todo-color-block bg-${todo.color}`}/>
